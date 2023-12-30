@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List with Eisenhower Matrix</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 1em 0;
+        }
+
+        #task-input,
+        #deadline-input {
+            width: 50%;
+            padding: 10px;
+            margin: 10px;
+        }
+
+        #add-btn {
+            padding: 10px;
+            margin: 10px;
+            cursor: pointer;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .delete-btn {
+            background-color: #cc0000;
+            color: #fff;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 3px;
+            margin-left: 10px;
+        }
+
+        .urgent-important {
+            background-color: #ff4d4d;
+        }
+
+        .not-urgent-important {
+            background-color: #ffcc99;
+        }
+
+        .urgent-not-important {
+            background-color: #ffcc66;
+        }
+
+        .not-urgent-not-important {
+            background-color: #b3b3b3;
+        }
+
+        .future-deadline {
+            background-color: #99ff99;
+        }
+
+        .legend {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>To-Do List</h1>
+    </header>
+
+    <div>
+        <input type="text" id="task-input" placeholder="Add a new task">
+        <input type="date" id="deadline-input">
+        <button id="add-btn" onclick="addTask()">Add Task</button>
+    </div>
+
+    <ul id="task-list">
+        <!-- Tasks will be dynamically added here -->
+    </ul>
+
+    <div class="legend">
+        <h3>Color Legend:</h3>
+        <ul>
+            <li><span style="background-color: #ff4d4d;">&nbsp;&nbsp;&nbsp;</span> Urgent and Important (Overdue)</li>
+            <li><span style="background-color: #ffcc66;">&nbsp;&nbsp;&nbsp;</span> Urgent but Not Important (Overdue)</li>
+            <li><span style="background-color: #ffcc99;">&nbsp;&nbsp;&nbsp;</span> Not Urgent but Important (Future Deadline)</li>
+            <li><span style="background-color: #b3b3b3;">&nbsp;&nbsp;&nbsp;</span> Neither Urgent nor Important (No Deadline)</li>
+            <li><span style="background-color: #99ff99;">&nbsp;&nbsp;&nbsp;</span> Future Deadline (Not Urgent)</li>
+        </ul>
+    </div>
+
+    <script>
+        function addTask() {
+            var taskInput = document.getElementById('task-input');
+            var deadlineInput = document.getElementById('deadline-input');
+            var taskList = document.getElementById('task-list');
+
+            if (taskInput.value.trim() !== '') {
+                var li = document.createElement('li');
+                li.innerHTML = taskInput.value +
+                    ' - Deadline: ' + (deadlineInput.value || 'No Deadline') +
+                    ' <button class="delete-btn" onclick="deleteTask(this)">Delete</button>';
+
+                categorizeTask(li, deadlineInput.value);
+                taskList.appendChild(li);
+
+                taskInput.value = '';
+                deadlineInput.value = '';
+            }
+        }
+
+        function deleteTask(btn) {
+            var li = btn.parentNode;
+            li.parentNode.removeChild(li);
+        }
+
+        function categorizeTask(taskElement, deadline) {
+            var currentDate = new Date();
+            var taskDeadline = deadline ? new Date(deadline) : null;
+
+            var overdue = taskDeadline && taskDeadline < currentDate;
+            var dueWithinDay = taskDeadline && taskDeadline.getTime() - currentDate.getTime() <= 86400000;
+
+            if (overdue && dueWithinDay) {
+                taskElement.classList.add('urgent-important');
+            } else if (overdue) {
+                taskElement.classList.add('urgent-not-important');
+            } else if (taskDeadline) {
+                taskElement.classList.add('not-urgent-important');
+            } else {
+                taskElement.classList.add('not-urgent-not-important');
+            }
+
+            if (taskDeadline && !overdue && !dueWithinDay) {
+                taskElement.classList.add('future-deadline');
+            }
+        }
+    </script>
+</body>
+
+</html>
